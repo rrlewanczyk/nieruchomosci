@@ -1,0 +1,28 @@
+services:
+  wordpress:
+    # Use 'build: .' to build the image from the Dockerfile in the current directory
+    build: .
+    container_name: my-wordpress
+    ports:
+      - "5500:80"
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: admin
+      WORDPRESS_DB_PASSWORD: admin
+      WORDPRESS_DB_NAME: wordpress
+    volumes:
+      - ./data/wordpress:/var/www/html
+      - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+  db:
+    image: mysql:5.7
+    container_name: my-mysql
+    platform: linux/amd64  # for macos
+    restart: always
+    environment:
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+      MYSQL_ROOT_PASSWORD: admin
+    volumes:
+      - ./data/mysql:/var/lib/mysql
