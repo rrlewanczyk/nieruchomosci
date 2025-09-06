@@ -25,39 +25,31 @@ wp plugin install /usr/local/bin/plugins-zips/jet-engine-3.7.3.zip --activate --
 # setup theme
 wp theme install hello-elementor --allow-root
 
-if [ ! -d "wp-content/themes/hello-elementor-child" ]; then
+FUNCTIONS_PHP="wp-content/themes/hello-elementor-child/functions.php"
+if [ ! -d FUNCTIONS_PHP ]; then
   wp scaffold child-theme hello-elementor-child --parent_theme=hello-elementor --allow-root;
 else
   echo "Child theme directory already exists. Skipping." ;
-  fi
+fi
 wp theme activate hello-elementor-child --allow-root
 
 # copy code and import
-FUNCTIONS_PHP="wp-content/themes/hello-elementor-child/functions.php"
-cp -r /usr/local/bin/code/* ./wp-content/themes/hello-elementor-child/
+if [ -f "$FUNCTIONS_PHP" ]; then
+    REQUIRED_CODES=(
+        "require_once get_stylesheet_directory() . '/src/importer.php';"
+        "require_once get_stylesheet_directory() . '/src/cptui_register.php';"
+        "require_once get_stylesheet_directory() . '/src/create_pages.php';"
+    )
 
-# importer
-REQUIRED_CODE="require_once get_stylesheet_directory() . '/importer.php';"
-if grep -q "$REQUIRED_CODE" "$FUNCTIONS_PHP"; then
-    echo "$REQUIRED_CODE: The code is already in the file. No action taken."
+    for REQUIRED_CODE in "${REQUIRED_CODES[@]}"; do
+        if grep -q "$REQUIRED_CODE" "$FUNCTIONS_PHP"; then
+            echo "$REQUIRED_CODE: The code is already in the file. No action taken."
+        else
+            echo "$REQUIRED_CODE" >> "$FUNCTIONS_PHP"
+        fi
+    done
 else
-    echo "$REQUIRED_CODE" >> "$FUNCTIONS_PHP"
-fi
-
-# cpt
-REQUIRED_CODE="require_once get_stylesheet_directory() . '/cptui_register.php';"
-if grep -q "$REQUIRED_CODE" "$FUNCTIONS_PHP"; then
-    echo "$REQUIRED_CODE: The code is already in the file. No action taken."
-else
-    echo "$REQUIRED_CODE" >> "$FUNCTIONS_PHP"
-fi
-
-# pages
-REQUIRED_CODE="require_once get_stylesheet_directory() . '/create_pages.php';"
-if grep -q "$REQUIRED_CODE" "$FUNCTIONS_PHP"; then
-    echo "$REQUIRED_CODE: The code is already in the file. No action taken."
-else
-    echo "$REQUIRED_CODE" >> "$FUNCTIONS_PHP"
+    echo "Error: $FUNCTIONS_PHP not found."
 fi
 
 
