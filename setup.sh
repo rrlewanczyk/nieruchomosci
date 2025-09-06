@@ -12,7 +12,7 @@ done
 echo "Database is ready. Installing plugins..."
 
 # setup wordpress
-wp core install --url="http://localhost:5500" --title="My WordPress" --admin_user="admin" --admin_password="admin" --admin_email="admin@example.com" --allow-root
+wp core install --url=${GCE_URL} --title="My WordPress" --admin_user="admin" --admin_password="admin" --admin_email="admin@example.com" --allow-root
 
 # setup required plugins
 wp plugin install elementor --activate --allow-root

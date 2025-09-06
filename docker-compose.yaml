@@ -11,6 +11,7 @@ services:
       WORDPRESS_DB_USER: admin
       WORDPRESS_DB_PASSWORD: admin
       WORDPRESS_DB_NAME: wordpress
+      GCE_URL: http://localhost:5500
     volumes:
       - ./data/wordpress:/var/www/html
       - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
