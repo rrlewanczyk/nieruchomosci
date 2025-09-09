@@ -91,61 +91,38 @@ function downloadImage($url): int
 
 class RealEstateProduct
 {
-    public string $title;
-    public string $description;
-    public float $price;
-    public string $thumbnailImage;
-    public array $allImages;
-    public int $roomCount;
-    public float $area;
-    public string $category;
+    public array $request;
     public ?int $vendorId;
-    public float $longitude;
-    public float $latitude;
-    public string $agentEstiId;
 
     public function asMd5(): string
     {
-        return md5($this->title);
+        return md5(json_encode($this->request));
     }
 
-    public static function fromApiResponse($response): RealEstateProduct
+    public function __construct($request)
     {
-        $offer = new RealEstateProduct();
-        $offer->title = $response["portalTitle"];
-        $offer->description = $response["description"];
-        $offer->price = $response["price"];
-        $offer->thumbnailImage = $response["main_picture"];
-        $offer->allImages = $response["pictures"];
-        $offer->roomCount = $response["apartmentRoomNumber"] ? $response["apartmentRoomNumber"] : 0;
-        $offer->area = $response["areaTotal"];
-        $offer->category = $response["typeName"];
-        $offer->agentEstiId = $response["contactId"];
-        $offer->vendorId = findUserByEstiId($response["contactId"]);
-        $offer->longitude = $response["locationLongitude"];
-        $offer->latitude = $response["locationLatitude"];
-        return $offer;
+        $this->request = $request;
     }
 
     public function create(): bool
     {
         $product = new WC_Product_Simple();
-        $product->set_name($this->title);
+        $product->set_name($this->request["portalTitle"]);
         $product->set_status('publish');
         $product->set_catalog_visibility('visible');
-        $product->set_price($this->price);
-        $product->set_regular_price($this->price);
+        $product->set_price($this->request["price"]);
+        $product->set_regular_price($this->request["price"]);
 
-        $product->set_description($this->description);
-        $product->set_short_description($this->description);
+        $product->set_description($this->request["description"]);
+        $product->set_short_description($this->request["description"]);
 
-        $product->set_category_ids(array(createOrGetCategory($this->category)));
+        $product->set_category_ids(array(createOrGetCategory($this->request["typeName"])));
 
-        $search_term = $this->thumbnailImage;
-        $thumbnail_url = array_filter($this->allImages, function ($string) use ($search_term) {
+        $search_term = $this->request["main_picture"];
+        $thumbnail_url = array_filter($this->request["pictures"], function ($string) use ($search_term) {
             return str_contains($string, $search_term);
         })[0];
-        $all_images_wo_thumbnail = array_filter($this->allImages, function ($string) use ($search_term) {
+        $all_images_wo_thumbnail = array_filter($this->request["pictures"], function ($string) use ($search_term) {
             return !str_contains($string, $search_term);
         });
         $product->set_image_id(downloadImage($thumbnail_url));
@@ -157,11 +134,15 @@ class RealEstateProduct
             'ID' => $product_id,
             'post_author' => $this->vendorId,
         ));
-        update_post_meta($product_id, "wspolrzedne", $this->latitude . ',' . $this->longitude);
-        update_post_meta($product_id, "powierzchnia", $this->area);
-        update_post_meta($product_id, "liczba_pokoi", $this->roomCount);
+        update_post_meta($product_id, "locationLatitudeLongitude",
+            $this->request["locationLatitude"]. ',' . $this->request["locationLongitude"]);
+        foreach($this->request as $key => $value){
+            update_post_meta($product_id, $key, $value);
+        }
 
-        $agentPost = getAgentPostByEstiId($this->agentEstiId);
+
+        # agent fields
+        $agentPost = getAgentPostByEstiId($this->request["contactId"]);
         update_post_meta($product_id, "agent", $agentPost->ID);
         update_post_meta($product_id, "esti_id", $agentPost->esti_id);
         update_post_meta($product_id, "pretty_name", $agentPost->pretty_name);
@@ -173,35 +154,7 @@ class RealEstateProduct
         return $product->save();
     }
 
-    public static function mock(): RealEstateProduct
-    {
-        $mockOffer = new RealEstateProduct();
-        $mockOffer->title = "mock title";
-        $mockOffer->description = "mock description";
-        $mockOffer->price = 10000.01;
-        $mockOffer->thumbnailImage = "81766809";
-        $mockOffer->allImages = [
-            "https://static.esticrm.pl/public/images/offers/15323/9770313/81766809_max.jpg",
-            "https://static.esticrm.pl/public/images/offers/15323/9770313/81766815_max.jpg",
-        ];
-        $mockOffer->roomCount = 4;
-        $mockOffer->category = "Mock Category";
-        $mockOffer->area = 11;
-        $mockOffer->vendorId = 1;
-        $mockOffer->longitude = 54.487036;
-        $mockOffer->latitude = 18.567070;
-        $mockOffer->agentEstiId = 1;
-
-        return $mockOffer;
-    }
 }
-
-function mockProduct(): bool
-{
-    RealEstateProduct::mock()->create();
-    return true;
-}
-
 
 function runProducts()
 {
@@ -238,7 +191,7 @@ function runProducts()
     echo('Downloaded ' . count($offers) . ' offers');
 
     foreach ($offers as $offer) {
-        RealEstateProduct::fromApiResponse($offer)->create();
+        new RealEstateProduct($offer)->create();
     }
 }
 
