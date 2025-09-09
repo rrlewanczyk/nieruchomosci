@@ -191,7 +191,8 @@ function runProducts()
     echo('Downloaded ' . count($offers) . ' offers');
 
     foreach ($offers as $offer) {
-        new RealEstateProduct($offer);
+        $product = new RealEstateProduct($offer);
+        $product->create();
     }
 }
 
