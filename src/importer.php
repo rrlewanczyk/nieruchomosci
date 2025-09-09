@@ -92,8 +92,6 @@ function downloadImage($url): int
 class RealEstateProduct
 {
     public array $request;
-    public ?int $vendorId;
-
     public function asMd5(): string
     {
         return md5(json_encode($this->request));
@@ -132,7 +130,7 @@ class RealEstateProduct
         $product_id = $product->save();
         wp_update_post(array(
             'ID' => $product_id,
-            'post_author' => $this->vendorId,
+            'post_author' => findUserByEstiId($this->request["companyId"]),
         ));
         update_post_meta($product_id, "locationLatitudeLongitude",
             $this->request["locationLatitude"]. ',' . $this->request["locationLongitude"]);
