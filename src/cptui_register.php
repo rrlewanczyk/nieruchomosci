@@ -118,6 +118,13 @@ add_action('jet-engine/meta-boxes/register-instances', function ($meta_manager) 
             "width" => "100%",
             "type" => "text",
         ),
+        array(
+            "title" => "Company Function",
+            "name" => "company_function",
+            "object_type" => "field",
+            "width" => "100%",
+            "type" => "text",
+        ),
     );
 
     new Jet_Engine_CPT_Meta('agent', $meta_fields, 'agent_box', 'normal', 'high', array());
