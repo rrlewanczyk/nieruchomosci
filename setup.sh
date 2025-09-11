@@ -19,6 +19,7 @@ wp plugin install elementor --activate --allow-root
 wp plugin install woocommerce --activate --allow-root
 wp plugin install wc-vendors --activate --allow-root
 wp plugin install font-awesome --activate --allow-root
+wp plugin install site-mailer --activate --allow-root
 wp plugin install wp-reviews-plugin-for-google --activate --allow-root
 wp plugin install /usr/local/bin/plugins-zips/elementor-pro.zip --activate --allow-root
 wp plugin install /usr/local/bin/plugins-zips/jet-smart-filters.zip --activate --allow-root

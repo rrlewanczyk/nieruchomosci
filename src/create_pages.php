@@ -23,7 +23,7 @@ function create_elementor_page(string $page_title)
 }
 
 function init_website_pages(): void {
-    $titles = ["Strona główna", "Oferty", "Kontakt", "O nas", "Zespół"];
+    $titles = ["Strona główna", "Oferty", "Kontakt", "O nas", "Zespół", "Polityka Prywatności"];
     foreach ($titles as $title) {
         create_elementor_page($title);
     }
