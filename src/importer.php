@@ -201,6 +201,7 @@ class RealEstateAgent
     public string $lastname;
     public string $email;
     public string $phone;
+    public string $description;
     public ?string $email_contact;
     public string $avatar_url;
 
@@ -214,6 +215,7 @@ class RealEstateAgent
         $agent->email_contact = $response['email_contact'];
         $agent->phone = $response['phone'];
         $agent->avatar_url = $response['avatar_url'];
+        $agent->description = $response['description'];
         return $agent;
     }
 
@@ -236,6 +238,7 @@ class RealEstateAgent
         $agent->phone = "mock_phone";
         $agent->email_contact = "mock_email_contact";
         $agent->avatar_url = "https://static.esticrm.pl/public/images/users/15323/152264_max.jpg";
+        $agent->description = "abc";
         return $agent;
     }
 
@@ -271,6 +274,7 @@ class RealEstateAgent
         update_post_meta($user_post, "esti_id", $this->id);
         update_post_meta($user_post, "email", $this->email);
         update_post_meta($user_post, "phone", $this->phone);
+        update_post_meta($user_post, "description", $this->description);
 
         wp_update_post(array(
             'ID' => $user_post,
