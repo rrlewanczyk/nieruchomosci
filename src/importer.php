@@ -263,6 +263,7 @@ class RealEstateProduct
 
 function runProducts()
 {
+    print_r("Datetime: " . date('Y-m-d H:i:s') . "\n");
     $url = 'https://client-api.esticrm.pl/apiClient/offer/list?company=20765&token=6ee2f34a88';
 
     $options = [
@@ -390,6 +391,7 @@ class RealEstateAgent
 
 function runAgents()
 {
+    print_r("Datetime: " . date('Y-m-d H:i:s') . "\n");
     $url = 'https://client-api.esticrm.pl/apiClient/user/exported-list?company=20765&token=6ee2f34a88';
 
     $options = [
